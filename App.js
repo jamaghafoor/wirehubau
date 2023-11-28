@@ -1,5 +1,6 @@
 import * as React from 'react';
-import {ActivityIndicator, View, Platform, StyleSheet} from 'react-native';
+import {ActivityIndicator, View, Platform, StyleSheet, StatusBar} from 'react-native';
+import SplashScreen from 'react-native-splash-screen';
 import {WebView} from 'react-native-webview';
 function LoadingIndicatorView() {
   return (
@@ -8,7 +9,14 @@ function LoadingIndicatorView() {
     </View>
   );
 }
+StatusBar.setBackgroundColor("#fff")
 export default function App() {
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      SplashScreen.hide();
+    }, 2000);
+  }, []);
   return (
     <View style={styles.container}>
       <WebView
