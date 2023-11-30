@@ -2,22 +2,39 @@
 /* eslint-disable quotes */
 /* eslint-disable prettier/prettier */
 import * as React from 'react';
-import { View, Platform, StyleSheet, StatusBar, BackHandler, Alert } from 'react-native';
-import { LogLevel, OneSignal } from 'react-native-onesignal';
+import {
+  View,
+  Platform,
+  StyleSheet,
+  StatusBar,
+  BackHandler,
+  Alert,
+  ScrollView,
+  Dimensions,
+  RefreshControl,
+} from 'react-native';
+import {LogLevel, OneSignal} from 'react-native-onesignal';
 import SplashScreen from 'react-native-splash-screen';
 import AnimatedLoader from 'react-native-animated-loader';
-import { WebView } from 'react-native-webview';
+import {WebView} from 'react-native-webview';
 
 StatusBar.setBackgroundColor('#fff');
-export default function App({ navigation }) {
-  const WEBVIEW_REF = React.useRef(null)
+const windowHeight = Dimensions.get('window').height;
+
+const heightPercentage = value => {
+  return (windowHeight / 100) * value;
+};
+
+export default function App({navigation}) {
+  const WEBVIEW_REF = React.useRef(null);
   const [visible, setVisible] = React.useState(true);
   const [canGoBack, setCanGoBack] = React.useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
 
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
 
   // OneSignal Initialization
-  OneSignal.initialize('b7b5efad-787e-4158-8da3-8af9ffb27f1f');
+  OneSignal.initialize('15028df0-0a11-4a8c-801a-f749e84689d0');
   OneSignal.Notifications.requestPermission(true);
   OneSignal.Notifications.addEventListener('click', event => {
     console.log('OneSignal: notification clicked:', event);
@@ -70,12 +87,26 @@ export default function App({ navigation }) {
       BackHandler?.removeEventListener('hardwareBackPress', () => goBack());
   }, [canGoBack]);
 
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      WEBVIEW_REF?.current?.reload();
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }>
+      {/* <View style={{flex: 1}}> */}
       <WebView
+        style={{flex: 1, height: heightPercentage(100)}}
         ref={WEBVIEW_REF}
         originWhitelist={['*']}
-        source={{ uri: 'https://wirehub.com.au/wp-login.php' }}
+        source={{uri: 'https://wirehub.com.au/'}}
         renderLoading={LoadingIndicatorView}
         startInLoadingState={true}
         onLoadEnd={() => setVisible(false)}
@@ -83,23 +114,32 @@ export default function App({ navigation }) {
         automaticallyAdjustContentInsets={false}
         domStorageEnabled={true}
         cacheEnabled={true}
-        cacheMode={"LOAD_CACHE_ELSE_NETWORK"}
+        cacheMode={'LOAD_CACHE_ELSE_NETWORK'}
         allowsInlineMediaPlayback={true}
         allowsBackForwardNavigationGestures
         sharedCookiesEnabled={true}
         thirdPartyCookiesEnabled={true}
         pullToRefreshEnabled={true}
         onNavigationStateChange={e => setupState(e)}
+        mediaPlaybackRequiresUserAction={false}
+        allowFileAccess={true}
+        useWebKit={true}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+        onError={syntheticEvent =>
+          Alert.alert('Something went wrong. Please try reloading')
+        }
       />
-    </View>
+      {/* </View> */}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
-    paddingTop: Platform.OS === 'ios' ? 50 : 0,
+    backgroundColor: 'red',
+    // paddingTop: Platform.OS === 'ios' ? 50 : 0,
   },
   loaderView: {
     paddingTop: 200,
