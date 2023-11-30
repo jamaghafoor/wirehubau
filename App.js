@@ -18,7 +18,6 @@ import SplashScreen from 'react-native-splash-screen';
 import AnimatedLoader from 'react-native-animated-loader';
 import {WebView} from 'react-native-webview';
 
-StatusBar.setBackgroundColor('#fff');
 const windowHeight = Dimensions.get('window').height;
 
 const heightPercentage = value => {
