@@ -42,7 +42,6 @@ export default function App({navigation}) {
   const [scrollViewHeight, setScrollViewHeight] = React.useState(0);
   const [ isPullToRefreshEnabled, setIsPullToRefreshEnabled ] = React.useState(false)
 
-  // console.log("Scroll Position: ", scrollPosition)
 
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
 
@@ -108,11 +107,6 @@ export default function App({navigation}) {
     }, 2000);
   }, []);
 
-  const getscrollposition = (e) => {
-    const y = e.nativeEvent.contentOffset.y;
-    console.log("Natove evrnent: ", e)
-    // setScrollPosition(y);
-  };
 
   const onWebViewMessage = e => {
     const { data } = e.nativeEvent
@@ -130,9 +124,6 @@ export default function App({navigation}) {
   return (
     <ScrollView
       style={styles.container}
-      // onScroll={getscrollposition}
-      // onMomentumScrollEnd={getscrollposition}
-      // scrollEventThrottle={16}
       onLayout={e => setScrollViewHeight(e.nativeEvent.layout.height)}
       refreshControl={
         <RefreshControl
@@ -144,7 +135,6 @@ export default function App({navigation}) {
           style={{ backgroundColor: "transparent" }}
         />
       }>
-      {/* <View style={{flex: 1}}> */}
       <WebView
         style={WEBVIEW(scrollViewHeight)}
         ref={WEBVIEW_REF}
@@ -153,7 +143,6 @@ export default function App({navigation}) {
         renderLoading={LoadingIndicatorView}
         startInLoadingState={true}
         onLoadEnd={() => setVisible(false)}
-        // cacheEnabled={web.cacheEnabled}
         automaticallyAdjustContentInsets={false}
         domStorageEnabled={true}
         cacheEnabled={true}
@@ -175,7 +164,6 @@ export default function App({navigation}) {
           Alert.alert('Something went wrong. Please try reloading')
         }
       />
-      {/* </View> */}
     </ScrollView>
   );
 }
@@ -183,9 +171,7 @@ export default function App({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: 'red',
     height: "100%",
-    // paddingTop: Platform.OS === 'ios' ? 50 : 0,
   },
   loaderView: {
     paddingTop: 200,
