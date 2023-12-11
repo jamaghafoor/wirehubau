@@ -24,11 +24,25 @@ const heightPercentage = value => {
   return (windowHeight / 100) * value;
 };
 
+const INJECTED_JS = `
+  window.onscroll = function() {
+    window.ReactNativeWebView.postMessage(
+      JSON.stringify({
+        scrollTop: document.documentElement.scrollTop || document.body.scrollTop
+      }),     
+    )
+  }
+`
+
 export default function App({navigation}) {
   const WEBVIEW_REF = React.useRef(null);
   const [visible, setVisible] = React.useState(true);
   const [canGoBack, setCanGoBack] = React.useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
+  const [scrollViewHeight, setScrollViewHeight] = React.useState(0);
+  const [ isPullToRefreshEnabled, setIsPullToRefreshEnabled ] = React.useState(false)
+
+  // console.log("Scroll Position: ", scrollPosition)
 
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
 
@@ -94,18 +108,48 @@ export default function App({navigation}) {
     }, 2000);
   }, []);
 
+  const getscrollposition = (e) => {
+    const y = e.nativeEvent.contentOffset.y;
+    console.log("Natove evrnent: ", e)
+    // setScrollPosition(y);
+  };
+
+  const onWebViewMessage = e => {
+    const { data } = e.nativeEvent
+    try {
+      const { scrollTop } = JSON.parse(data)
+      setIsPullToRefreshEnabled(scrollTop === 0)
+    } catch (error) {}
+  }
+
+  const WEBVIEW = (height) => ({
+    width: "100%",
+    height,
+  })
+
   return (
     <ScrollView
       style={styles.container}
+      // onScroll={getscrollposition}
+      // onMomentumScrollEnd={getscrollposition}
+      // scrollEventThrottle={16}
+      onLayout={e => setScrollViewHeight(e.nativeEvent.layout.height)}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        <RefreshControl
+          refreshing={false}
+          enabled={isPullToRefreshEnabled}
+          onRefresh={onRefresh}
+          tintColor="transparent"
+          colors={["transparent"]}
+          style={{ backgroundColor: "transparent" }}
+        />
       }>
       {/* <View style={{flex: 1}}> */}
       <WebView
-        style={{flex: 1, height: heightPercentage(100)}}
+        style={WEBVIEW(scrollViewHeight)}
         ref={WEBVIEW_REF}
         originWhitelist={['*']}
-        source={{uri: 'https://wirehub.com.au/'}}
+        source={{uri: 'https://wirehub.com.au/news-feed/'}}
         renderLoading={LoadingIndicatorView}
         startInLoadingState={true}
         onLoadEnd={() => setVisible(false)}
@@ -123,7 +167,9 @@ export default function App({navigation}) {
         mediaPlaybackRequiresUserAction={false}
         allowFileAccess={true}
         useWebKit={true}
+        injectedJavaScript={INJECTED_JS}
         showsHorizontalScrollIndicator={false}
+        onMessage={onWebViewMessage}
         showsVerticalScrollIndicator={false}
         onError={syntheticEvent =>
           Alert.alert('Something went wrong. Please try reloading')
@@ -137,7 +183,8 @@ export default function App({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'red',
+    // backgroundColor: 'red',
+    height: "100%",
     // paddingTop: Platform.OS === 'ios' ? 50 : 0,
   },
   loaderView: {
