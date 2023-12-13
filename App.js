@@ -2,49 +2,22 @@
 /* eslint-disable quotes */
 /* eslint-disable prettier/prettier */
 import * as React from 'react';
-import {
-  View,
-  Platform,
-  StyleSheet,
-  StatusBar,
-  BackHandler,
-  Alert,
-  ScrollView,
-  Dimensions,
-  RefreshControl,
-} from 'react-native';
-import {LogLevel, OneSignal} from 'react-native-onesignal';
+import { LogLevel, OneSignal } from 'react-native-onesignal';
 import SplashScreen from 'react-native-splash-screen';
-import AnimatedLoader from 'react-native-animated-loader';
-import {WebView} from 'react-native-webview';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+// import messaging from '@react-native-firebase/messaging';
+import MainView from './MainView';
+import NotificationView from './NotificationsView';
+import { Linking } from 'react-native';
 
-const windowHeight = Dimensions.get('window').height;
 
-const heightPercentage = value => {
-  return (windowHeight / 100) * value;
-};
+const Stack = createNativeStackNavigator();
 
-const INJECTED_JS = `
-  window.onscroll = function() {
-    window.ReactNativeWebView.postMessage(
-      JSON.stringify({
-        scrollTop: document.documentElement.scrollTop || document.body.scrollTop
-      }),     
-    )
-  }
-`
-
-export default function App({navigation}) {
-  const WEBVIEW_REF = React.useRef(null);
-  const [visible, setVisible] = React.useState(true);
-  const [canGoBack, setCanGoBack] = React.useState(false);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [scrollViewHeight, setScrollViewHeight] = React.useState(0);
-  const [ isPullToRefreshEnabled, setIsPullToRefreshEnabled ] = React.useState(false)
+export default function App() {
 
 
   OneSignal.Debug.setLogLevel(LogLevel.Verbose);
-
   // OneSignal Initialization
   OneSignal.initialize('15028df0-0a11-4a8c-801a-f749e84689d0');
   OneSignal.Notifications.requestPermission(true);
@@ -52,19 +25,16 @@ export default function App({navigation}) {
     console.log('OneSignal: notification clicked:', event);
   });
 
-  function LoadingIndicatorView() {
-    return (
-      <View style={styles.loaderView}>
-        <AnimatedLoader
-          visible={visible}
-          overlayColor="rgba(255,255,255, 0)"
-          source={require('./assets/Loader.json')}
-          animationStyle={styles.lottie}
-          speed={1}
-        />
-      </View>
-    );
+
+const linking = {
+  prefixes: ['https://mychat.com', 'mychat://'],
+  config: {
+    screens: {
+      NotificationView: 'NotificationView',
+    },
   }
+}
+
 
   React.useEffect(() => {
     setTimeout(() => {
@@ -72,121 +42,13 @@ export default function App({navigation}) {
     }, 1000);
   }, []);
 
-  const setupState = event => {
-    setCanGoBack(event?.canGoBack);
-  };
-
-  React.useEffect(() => {
-    const goBack = () => {
-      if (canGoBack === false) {
-        Alert.alert(
-          'Exit App',
-          'Do you want to exit app?',
-          [
-            {text: 'No', onPress: () => console.log('No'), style: 'cancel'},
-            {text: 'Yes', onPress: () => BackHandler?.exitApp()},
-          ],
-          {cancelable: false},
-        );
-      }
-      WEBVIEW_REF?.current?.goBack();
-      return true;
-    };
-
-    BackHandler?.addEventListener('hardwareBackPress', () => goBack());
-
-    return () =>
-      BackHandler?.removeEventListener('hardwareBackPress', () => goBack());
-  }, [canGoBack]);
-
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => {
-      WEBVIEW_REF?.current?.reload();
-      setRefreshing(false);
-    }, 2000);
-  }, []);
-
-
-  const onWebViewMessage = e => {
-    const { data } = e.nativeEvent
-    try {
-      const { scrollTop } = JSON.parse(data)
-      setIsPullToRefreshEnabled(scrollTop === 0)
-    } catch (error) {}
-  }
-
-  const WEBVIEW = (height) => ({
-    width: "100%",
-    height,
-  })
 
   return (
-    <ScrollView
-      style={styles.container}
-      onLayout={e => setScrollViewHeight(e.nativeEvent.layout.height)}
-      refreshControl={
-        <RefreshControl
-          refreshing={false}
-          enabled={isPullToRefreshEnabled}
-          onRefresh={onRefresh}
-          tintColor="transparent"
-          colors={["transparent"]}
-          style={{ backgroundColor: "transparent" }}
-        />
-      }>
-      <WebView
-        style={WEBVIEW(scrollViewHeight)}
-        ref={WEBVIEW_REF}
-        originWhitelist={['*']}
-        source={{uri: 'https://wirehub.com.au/news-feed/'}}
-        renderLoading={LoadingIndicatorView}
-        startInLoadingState={true}
-        onLoadEnd={() => setVisible(false)}
-        automaticallyAdjustContentInsets={false}
-        domStorageEnabled={true}
-        cacheEnabled={true}
-        cacheMode={'LOAD_CACHE_ELSE_NETWORK'}
-        allowsInlineMediaPlayback={true}
-        allowsBackForwardNavigationGestures
-        sharedCookiesEnabled={true}
-        thirdPartyCookiesEnabled={true}
-        pullToRefreshEnabled={true}
-        onNavigationStateChange={e => setupState(e)}
-        mediaPlaybackRequiresUserAction={false}
-        allowFileAccess={true}
-        useWebKit={true}
-        injectedJavaScript={INJECTED_JS}
-        showsHorizontalScrollIndicator={false}
-        onMessage={onWebViewMessage}
-        showsVerticalScrollIndicator={false}
-        onError={syntheticEvent =>
-          Alert.alert('Something went wrong. Please try reloading')
-        }
-      />
-    </ScrollView>
+    <NavigationContainer linking={linking}>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={MainView}/>
+        <Stack.Screen name="NotificationView" component={NotificationView} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    height: "100%",
-  },
-  loaderView: {
-    paddingTop: 200,
-    alignSelf: 'center',
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  back: {
-    marginBottom: 40,
-    height: 100,
-    width: 100,
-  },
-  lottie: {
-    width: 100,
-    height: 100,
-  },
-});
