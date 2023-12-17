@@ -6,23 +6,16 @@ import {
   View,
   Platform,
   StyleSheet,
-  StatusBar,
   BackHandler,
   Alert,
   ScrollView,
   Dimensions,
   RefreshControl,
 } from 'react-native';
-import {LogLevel, OneSignal} from 'react-native-onesignal';
-import SplashScreen from 'react-native-splash-screen';
 import AnimatedLoader from 'react-native-animated-loader';
-import {WebView} from 'react-native-webview';
+import { OneSignal } from 'react-native-onesignal';
+import { WebView } from 'react-native-webview';
 
-const windowHeight = Dimensions.get('window').height;
-
-const heightPercentage = value => {
-  return (windowHeight / 100) * value;
-};
 
 const INJECTED_JS = `
   window.onscroll = function() {
@@ -34,22 +27,25 @@ const INJECTED_JS = `
   }
 `
 
-export default function MainView({navigation}) {
+export default function MainView({ navigation, route }) {
+  // const initRoute = route?.params?.initRoute
+  // console.log("initRoute: ", initRoute)
   const WEBVIEW_REF = React.useRef(null);
   const [visible, setVisible] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
   const [canGoBack, setCanGoBack] = React.useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
   const [scrollViewHeight, setScrollViewHeight] = React.useState(0);
-  const [ isPullToRefreshEnabled, setIsPullToRefreshEnabled ] = React.useState(false)
+  const [isPullToRefreshEnabled, setIsPullToRefreshEnabled] = React.useState(false);
+  const [initRoute, setInitRoute] = React.useState('https://wirehub.com.au/news-feed/');
+  const [canLoad, setCanLoad] = React.useState(false);
 
 
-  OneSignal.Debug.setLogLevel(LogLevel.Verbose);
-
-  // OneSignal Initialization
-  OneSignal.initialize('15028df0-0a11-4a8c-801a-f749e84689d0');
-  OneSignal.Notifications.requestPermission(true);
   OneSignal.Notifications.addEventListener('click', event => {
-    console.log('OneSignal: notification clicked:', event);
+    console.log('home notification clicked:', event?.notification);
+    setInitRoute(event?.notification?.launchUrl)
+    // navigation.navigate("NotificationView", { notification: event?.notification })
+
   });
 
   function LoadingIndicatorView() {
@@ -66,14 +62,13 @@ export default function MainView({navigation}) {
     );
   }
 
-  React.useEffect(() => {
-    setTimeout(() => {
-      SplashScreen.hide();
-    }, 1000);
-  }, []);
-
   const setupState = event => {
+    // if (canLoad) {
+    //   setLoading(true)
+    // }
     setCanGoBack(event?.canGoBack);
+    console.log("Can go backL ", event?.canGoBack)
+
   };
 
   React.useEffect(() => {
@@ -83,10 +78,10 @@ export default function MainView({navigation}) {
           'Exit App',
           'Do you want to exit app?',
           [
-            {text: 'No', onPress: () => console.log('No'), style: 'cancel'},
-            {text: 'Yes', onPress: () => BackHandler?.exitApp()},
+            { text: 'No', onPress: () => console.log('No'), style: 'cancel' },
+            { text: 'Yes', onPress: () => BackHandler?.exitApp() },
           ],
-          {cancelable: false},
+          { cancelable: false },
         );
       }
       WEBVIEW_REF?.current?.goBack();
@@ -113,7 +108,7 @@ export default function MainView({navigation}) {
     try {
       const { scrollTop } = JSON.parse(data)
       setIsPullToRefreshEnabled(scrollTop === 0)
-    } catch (error) {}
+    } catch (error) { }
   }
 
   const WEBVIEW = (height) => ({
@@ -135,15 +130,30 @@ export default function MainView({navigation}) {
           style={{ backgroundColor: "transparent" }}
         />
       }>
+      {loading && <View style={styles.loaderView}>
+        <AnimatedLoader
+          visible={loading}
+          overlayColor="rgba(255,255,255, 0)"
+          source={require('./assets/Loader.json')}
+          animationStyle={styles.lottie}
+          speed={1}
+        />
+      </View>}
       <WebView
         style={WEBVIEW(scrollViewHeight)}
         ref={WEBVIEW_REF}
         originWhitelist={['*']}
-        source={{uri: 'https://wirehub.com.au/news-feed/'}}
+        source={{ uri: initRoute }}
         renderLoading={LoadingIndicatorView}
         startInLoadingState={true}
-        onLoadEnd={() => setVisible(false)}
-        automaticallyAdjustContentInsets={false}
+        onLoadStart={() => {
+          setLoading(true)
+        }}
+        onLoadEnd={() => {
+          setLoading(false);
+          setVisible(false)
+        }}
+        automaticallyAdjustContentInsets={true}
         domStorageEnabled={true}
         cacheEnabled={true}
         cacheMode={'LOAD_CACHE_ELSE_NETWORK'}
@@ -179,6 +189,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 99
   },
   back: {
     marginBottom: 40,

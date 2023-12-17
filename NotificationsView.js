@@ -27,7 +27,9 @@ const INJECTED_JS = `
   }
 `
 
-export default function NotificationView({navigation}) {
+export default function NotificationView({route}) {
+  const notification = route?.params?.notification
+  console.log("initRoute: ", notification)
   const WEBVIEW_REF = React.useRef(null);
   const [visible, setVisible] = React.useState(true);
   const [canGoBack, setCanGoBack] = React.useState(false);
@@ -50,6 +52,7 @@ export default function NotificationView({navigation}) {
   }
   const setupState = event => {
     setCanGoBack(event?.canGoBack);
+
   };
 
   React.useEffect(() => {
@@ -115,7 +118,7 @@ export default function NotificationView({navigation}) {
         style={WEBVIEW(scrollViewHeight)}
         ref={WEBVIEW_REF}
         originWhitelist={['*']}
-        source={{uri: 'https://wirehub.com.au/news-feed/'}}
+        source={{uri: notification?.launchUrl || 'https://wirehub.com.au/news-feed/'}}
         renderLoading={LoadingIndicatorView}
         startInLoadingState={true}
         onLoadEnd={() => setVisible(false)}
