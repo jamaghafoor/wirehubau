@@ -96,10 +96,10 @@ export default function MainView({ navigation, route }) {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    setTimeout(() => {
+    // setTimeout(() => {
       WEBVIEW_REF?.current?.reload();
       setRefreshing(false);
-    }, 2000);
+    // }, 2000);
   }, []);
 
 
@@ -130,7 +130,7 @@ export default function MainView({ navigation, route }) {
           style={{ backgroundColor: "transparent" }}
         />
       }>
-      {loading && <View style={styles.loaderView}>
+      {/* {loading && <View style={styles.loaderView}>
         <AnimatedLoader
           visible={loading}
           overlayColor="rgba(255,255,255, 0)"
@@ -138,7 +138,7 @@ export default function MainView({ navigation, route }) {
           animationStyle={styles.lottie}
           speed={1}
         />
-      </View>}
+      </View>} */}
       <WebView
         style={WEBVIEW(scrollViewHeight)}
         ref={WEBVIEW_REF}
@@ -181,6 +181,7 @@ export default function MainView({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: Platform?.OS == "ios" ? 30 : 0,
     height: "100%",
   },
   loaderView: {

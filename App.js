@@ -22,7 +22,6 @@ export default function App() {
   // OneSignal.Notifications.addEventListener('click', event => {
   //   console.log('notification clicked:', event?.notification);
   //   setInitRoute(event?.notification?.launchUrl)
-
   // });
 
 const linking = {
@@ -34,11 +33,10 @@ const linking = {
   }
 }
 
-
   React.useEffect(() => {
     setTimeout(() => {
       SplashScreen.hide();
-    }, 1000);
+    }, 2000);
   }, []);
 
 

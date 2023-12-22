@@ -23,10 +23,22 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.wirehub.au.app</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>wirehub</string>
 			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.wirehub.au.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array/>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
@@ -36,7 +48,7 @@
 	<key>NSAppTransportSecurity</key>
 	<dict/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>WireHub will use your location to provide you more suitable and related content.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
