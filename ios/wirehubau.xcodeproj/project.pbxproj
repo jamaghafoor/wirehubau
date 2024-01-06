@@ -10,6 +10,7 @@
 		00E356F31AD99517003FC87E /* wirehubauTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* wirehubauTests.m */; };
 		040FB21F2B189E8400EDD247 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 040FB21E2B189E8400EDD247 /* NotificationService.swift */; };
 		040FB2232B189E8400EDD247 /* OneSignalNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 040FB21C2B189E8400EDD247 /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		046C307A2B2C752900C661A8 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 040FB21E2B189E8400EDD247 /* NotificationService.swift */; };
 		0C80B921A6F3F58F76C31292 /* libPods-wirehubau.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-wirehubau.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -530,6 +531,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				046C307A2B2C752900C661A8 /* NotificationService.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -575,7 +577,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.--PRODUCT-NAME-rfc1034identifier-.app";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/wirehubau.app/wirehubau";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/wirehubau.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/wirehubau";
 			};
 			name = Debug;
 		};
@@ -601,7 +603,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.--PRODUCT-NAME-rfc1034identifier-.app";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/wirehubau.app/wirehubau";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/wirehubau.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/wirehubau";
 			};
 			name = Release;
 		};
@@ -697,10 +699,11 @@
 				CODE_SIGN_ENTITLEMENTS = wirehubau/wirehubau.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = FHUQRHSH7P;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = wirehubau/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WireHub;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -730,9 +733,10 @@
 				CODE_SIGN_ENTITLEMENTS = wirehubau/wirehubau.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = FHUQRHSH7P;
 				INFOPLIST_FILE = wirehubau/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = WireHub;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
